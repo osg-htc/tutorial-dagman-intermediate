@@ -5,44 +5,69 @@ ospool:
 
 # Intermediate DAGMan: Uses and Features
 
-This tutorial helps you explore HTCondor's DAGMan its many features.
+This tutorial helps you explore HTCondor's DAGMan and its many features.
+
+<details>
+<summary>Before you start...</summary>
+<br>
+Before working on this tutorial, we recommend that you read through our other DAGMan guides:
+<ul>
+  <li><a href="https://portal.osg-htc.org/documentation/htc_workloads/automated_workflows/dagman-workflows/">Overview: Submit Workflows with HTCondor's DAGMan</a></li>
+  <li><a href="https://portal.osg-htc.org/documentation/htc_workloads/automated_workflows/dagman-simple-example/">Simple Example of a DAGMan Workflow</a></li>
+</ul>
+The definitive guide to DAGMan is the <a href="https://htcondor.readthedocs.io/en/latest/automated-workflows/index.html">HTCondor DAGMan Manual.</a>.
+<br>		
+</details>
+
 You can download the tutorial materials with the following command:
 
 <pre class="term"><code>$ git clone https://github.com/OSGConnect/tutorial-dagman-intermediate</code></pre>
 
-Now move into the new directory to see the contents of the tutorial:
+Now move into the new directory with
 
 <pre class="term"><code>$ cd tutorial-dagman-intermediate</code></pre>
 
-At the top level is a worked example of a "Diamond DAG" that summarizes the basic components of a creating, submitting, and managing DAGMan workflows.
-In the lower level `additional_examples` directory are more worked examples with their own `README`s highlighting specific features that can be used with DAGMan.
-Brief descriptions of these examples are provided in the [Additional Examples](#additional-examples) section at the end of this tutorial.
+and list its contents with
 
-Before working on this tutorial, we recommend that you read through our other DAGMan guides:
+<pre class="term"><code>$ ls -l</code></pre>
 
-* [Overview: Submit Workflows with HTCondor's DAGMan](https://portal.osg-htc.org/documentation/htc_workloads/automated_workflows/dagman-workflows/) 
-* [Simple Example of a DAGMan Workflow](https://portal.osg-htc.org/documentation/htc_workloads/automated_workflows/dagman-simple-example/)
+Here are the highlights:
 
-The definitive guide to DAGMan is [HTCondor's DAGMan Documentation](https://htcondor.readthedocs.io/en/latest/automated-workflows/index.html).
+* The `diamond.dag` file and the `SleepJob` directory are the worked example of a "Diamond DAG" for this tutorial.
+* The `additional_examples` directory contains additional examples, each with their own `README` file exploring specific DAGMan features.
 
 ## Types of DAGs
 
-While any workflow that satisfies the definition of a ["Directed Acyclic Graph" (DAG)](https://en.wikipedia.org/wiki/Directed_acyclic_graph) can be executed using DAGMan, there are certain types that are the most commonly used:
+Any workflow that satisfies the definition of a ["Directed Acyclic Graph" (DAG)](https://en.wikipedia.org/wiki/Directed_acyclic_graph) can be executed using DAGMan.
+That being said, there are certain types that are the most commonly used:
 
-* **Sequential DAG**: all the nodes are connected in a sequence of one after the other, with no branching or splitting. This is good for conducting increasingly refined analyses of a dataset or initial result, or chaining together a long-running calculation. The simplest example of this type is used in the guide [Simple Example of a DAGMan Workflow](https://portal.osg-htc.org/documentation/htc_workloads/automated_workflows/dagman-simple-example/). 
-* **Split and recombine DAG**: the first node is connected to many nodes of the same layer (split) which then all connect back to the final node (recombine). Here, you can set up the shared environment in the first node and use it to parallelize the work into many individual jobs, then finally combine/analyze the results in the final node. The simplest example of this type is the "Diamond DAG" - the subject of this tutorial.
-* **Collection DAG**: no node is connected to any other node. This is good for the situation where you need to run a bunch of otherwise unrelated jobs, perhaps ones that are competing for a limited resource. The simplest example of this type is a DAG consisting of a single node.
+* **Sequential DAG**: all the nodes are connected in a sequence of one after the other, with no branching or splitting.
+    This is good for conducting increasingly refined analyses of a dataset or initial result, or chaining together a long-running calculation.
+    The simplest example of this type is used in the guide [Simple Example of a DAGMan Workflow](https://portal.osg-htc.org/documentation/htc_workloads/automated_workflows/dagman-simple-example/).
 
-These types are by no means "official", nor are they the only types of structure that a DAG can take. Rather, they serve as starting points from which you can build your own DAG workflow, which will likely consist of some combination of the above elements.
+* **Split and recombine DAG**: the first node is connected to many nodes of the same layer (split) which then all connect back to the final node (recombine).
+    Here, you can set up the shared environment in the first node and use it to parallelize the work into many individual jobs, then finally combine/analyze the results in the final node.
+    The simplest example of this type is the "Diamond DAG" - the subject of this tutorial.
+
+* **Collection DAG**: no node is connected to any other node.
+    This is good for the situation where you need to run a bunch of otherwise unrelated jobs, perhaps ones that are competing for a limited resource.
+    The simplest example of this type is a DAG consisting of a single node.
+
+These types are by no means "official", nor are they the only types of structure that a DAG can take.
+Rather, they serve as starting points from which you can build your own DAG workflow, which will likely consist of some combination of the above elements.
 
 ## The Diamond DAG
 
-As mentioned above, the "Diamond DAG" is the simplest example of a "split and recombine" DAG.
-In this case, the first node `TOP` is connected to two nodes `LEFT` and `RIGHT` (the "split"), which are then connected to the final node `BOTTOM` (the "recombine").
+The "Diamond DAG" is the simplest example of a "split and recombine" DAG, pictured here:
 
 ![Diamond DAG figure](https://raw.githubusercontent.com/OSGConnect/tutorial-dagman-intermediate/main/.images/DiamondDAG.png)
 
+As shown in the image, the first node `TOP` is connected to two nodes `LEFT` and `RIGHT` (the "split"), which are then connected to the final node `BOTTOM` (the "recombine").
+
+## The DAGMan input file
+
 To describe the flow of the DAG and the parts needed to execute it, DAGMan uses a custom description language in an input file, typically named `<DAG Name>.dag`. 
+
 The two most important commands in the DAG description language are:
 
 1. `JOB <NodeName> <NodeSubmitFile>` - Describes a node and the submit file it will use to run the node.
@@ -53,53 +78,49 @@ To view the contents of `diamond.dag`, run
 
 <pre class="term"><code>$ cat diamond.dag</code></pre>
 
-Before you continue, we recommend that you closely examine the contents of `diamond.dag` and identify its components. 
-Furthermore, try to identify the submit file for each node, and use that submit file to determine the nature of the HTCondor job that will be submitted for each node.
+Before you continue, we recommend that you closely examine the contents of `diamond.dag`:
+
+* Can you identify the nodes and how they are connected? 
+* Can you confirm that this file accurately represent the figure above?
+* Can you determine the HTCondor job associated with each node?
 
 ## Submitting a DAG
 
-To submit a DAGMan workflow to HTCondor, you can use one of the following commands:
+When you are ready, submit the DAG workflow to DAGMan by running:
 
-<pre class="term"><code>$ condor_submit_dag diamond.dag
-  or
-$ htcondor dag submit diamond.dag</code></pre>
+<pre class="term"><code>$ condor_submit_dag diamond.dag</code></pre>
+
+or
+
+<pre class="term"><code>$ htcondor dag submit diamond.dag</code></pre>
 
 ## What Happens?
 
-When a DAG is submitted to HTCondor a special job is created to run DAGMan
-on behalf of you the user. This job runs the provided HTCSS DAGMan executable
-in the AP job queue. This is an actual job that can be queried and acted upon.
+When you submit a DAG, HTCondor creates a special DAGMan job in your queue, then prints out a list of files associated with the submission.
 
-You may also notice that lots of files are created. These files are all part
-of DAGMan and have various purposes. In general, the files that should
-always exist are as follows:
+The job that is created corresponds to the instance of DAGMan that is managing the job submissions.
+The files associated with this job are
 
-* DAGMan job proper files
-  1. `<DAG Name>.condor.sub` - Submit file for the DAGMan job proper
-  2. `<DAG Name>.dagman.log` - Job event log file for the DAGMan job proper
-  3. `<DAG Name>.lib.err` - Standard error stream file for the DAGMan job proper
-  4. `<DAG Name>.lib.out` - Standard output stream file for the DAGMan job proper
-* Informational DAGMan files
-  1. `<DAG Name>.dagman.out` - General DAGMan process logging file
-  2. `<DAG Name>.nodes.log` - Collective job event log file for all managed jobs (Heart of DAGMan)
-  3. `<DAG Name>.metrics` - JSON formatted information about the DAG
+1. `<DAG Name>.condor.sub` - Submit file for the DAGMan job
+2. `<DAG Name>.dagman.log` - Job event log file for the DAGMan job
+3. `<DAG Name>.lib.err` - Standard error stream file for the DAGMan job
+4. `<DAG Name>.lib.out` - Standard output stream file for the DAGMan job
 
-Of these files, the two most important are the `<DAG Name>.dagman.out` and `<DAG Name>.nodes.log`. 
-The `.dagman.out` file contains the entire history and status of DAGMan's execution of your workflow. 
-The `.nodes.log` file on the other hand is the accumulated log entries for every HTCondor job that DAGMan submitted, 
-and DAGMan monitors the contents of this file to generate the contents of the  `.dagman.out` file. 
+For most part, you can ignore these files.
 
-> Note: these are not all the files that DAGMan can produce.
-> Depending on the options and features you employ in your DAG input file, more files with different purposes can be created. 
+The running DAGMan instance also generates files as part of its management of your workflow:
+
+1. `<DAG Name>.dagman.out` - Reports the actions taken by DAGMan for managing the workflow
+2. `<DAG Name>.nodes.log` - Collection of all HTCondor log entries for every job DAGMan submits
+3. `<DAG Name>.metrics` - JSON formatted information about the DAG
+
+These files are useful for monitoring and troubleshooting.
 
 ## Monitoring DAGMan
 
-The DAGMan job and the jobs in the DAG workflow can be found in the AP job queue 
-and so the normal methods of job monitoring work. 
-That also means that you can interact with these jobs, though in a more limited fashion than a regular job (see [Running and Managing DAGMan](https://htcondor.readthedocs.io/en/latest/automated-workflows/dagman-interaction.html) for more details).
-
-A plain `condor_q` command will show a condensed batch view of the jobs submitted, running, and managed by the DAGMan job proper. 
-For more information about jobs running under DAGMan, use the `-nobatch` and `-dag` flags:
+Since DAGMan runs as a special job in the queue, you can monitor it like any other job.
+A plain `condor_q` command will show a condensed batch view of the jobs submitted, running, and managed by the DAGMan job. 
+You can get more information about the jobs that DAGMan is managine by using the `-nobatch` and `-dag` flags:
 
 <pre class="term"><code># Basic job query (Batched/Condensed)
 $ condor_q
@@ -110,8 +131,7 @@ $ condor_q -nobatch
 # Increased information
 $ condor_q -nobatch -dag</code></pre>
 
-You can also watch the progress of the DAG and the jobs running under it
-by running:
+You can also watch the progress of the DAG and the jobs running under it by running:
 
 <pre class="term"><code>$ condor_watch_q</code></pre>
 
