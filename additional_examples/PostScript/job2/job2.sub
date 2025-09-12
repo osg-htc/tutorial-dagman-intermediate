@@ -1,10 +1,10 @@
 job_name = job2
 
-log = $(job_name).$(Cluster).log
-
 executable = $(job_name).sh
-output = $(job_name).out
-error = $(job_name).err
+
+log = log/$(job_name).$(Cluster).log
+output = out/$(job_name).out
+error = err/$(job_name).err
 
 transfer_input_files = ../filtered_data.csv
 

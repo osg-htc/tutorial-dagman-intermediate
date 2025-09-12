@@ -1,31 +1,32 @@
 # POST Scripts
 
-A `POST` script is an example of a DAG node `SCRIPT`, in this case one that 
-runs after the corresponding node job has completed successfully. 
-These scripts are lightweight task to be ran as minor post processing tasks. 
+You can have DAGMan execute a `SCRIPT` as part of a DAG node.
+
+A `POST` script runs when its node's job has completed successfully. 
 The post-script is considered part of the node structure which means a 
 post-script failure will lead to a node failure.
 
-It is important to note that all DAG `SCRIPT`s run on the Access Point
+You should note that all DAG `SCRIPT`s run on the Access Point
 (where you log in an submit jobs) and not on the Execution Point 
 (where the node's `JOB` actually runs).
+Thus, the `POST` script should be a lightweight task or minor post processing. 
 
 Some example uses of `POST` scripts are:
 
 1. Verifying job output exists or is valid
-2. Manipulate files (Rename, Move, Condense)
-3. Produce files for DAGMan (Sub-DAGS, scripts, submit files)
-4. Make a node or sub-DAG workflow re-run on success
-5. Fake a node success upon job failure
+2. Manipulate files (rename, move, condense)
+3. Produce files for subsequent DAG nodes (Sub-DAGS, scripts, submit files)
+4. Re-run a node or sub-DAG workflow on success
+5. Fake node success upon job failure
 
 ## Exercise
 
-For this example, we will again use the `sum.dag` that was used in the `PRE` script
+For this example, you will again use the `sum.dag` that was used in the `PRE` script
 example. This time, instead of using a `PRE` script for `job2` to check if the contents of
-`data.csv` are valid, we will use the `POST` script for `job1` to filter only the valid contents
+`data.csv` are valid, you will use the `POST` script for `job1` to filter only the valid contents
 of `data.csv` into a file called `filtered_data.csv`. 
 
-In the `sum.dag`, we define the `POST` script as
+In the `sum.dag`, you define the `POST` script as
 
 ```
 SCRIPT POST job2 ./filter.sh
@@ -65,14 +66,15 @@ $ rm *data.csv job*/*.{err,log,out} sum.dag.*
 $ condor_submit_dag sum.dag
 ```
 
-Does the DAG finish successfully? Did DAGMan mark node `job1` as a success or failure?
+* Does the DAG finish successfully?
+* Did DAGMan mark node `job1` as a success or failure?
 
 As you think of incorporating `PRE` and `POST` scripts in your DAG workflow, remember that such
 scripts should not be intensive tasks. Limit the use of these scripts to simple checks or parsing.
-If the tasks are intensive, consider placing the code into the node `JOB` proper, or even 
+If the tasks are intensive, consider placing the code into the node's `JOB` itself, or even 
 insert a new node to handle the intensive task.
 
-For more information on the `POST` and other DAGMan `SCRIPT`s, see 
+* For more information on the `POST` and other DAGMan `SCRIPT`s, see 
 [DAGMAn Scripts Documentation](https://htcondor.readthedocs.io/en/latest/automated-workflows/dagman-scripts.html).
-For information on how DAGMan decides if a node is a success or failure, see 
+* For information on how DAGMan decides if a node is a success or failure, see 
 [DAGMan Node Success/Failure Documentation](https://htcondor.readthedocs.io/en/latest/automated-workflows/node-pass-or-fail.html).
