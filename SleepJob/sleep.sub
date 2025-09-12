@@ -1,7 +1,9 @@
 # Simple sleep job
 executable = /bin/sleep
 arguments  = 60
-log        = ./SleepJob/$(JOB).log
+log        = ./SleepJob/log/$(JOB).log
+output     = ./SleepJob/out/$(JOB).out
+error      = ./SleepJob/err/$(JOB).err
 
 request_cpus   = 1
 request_memory = 1GB
