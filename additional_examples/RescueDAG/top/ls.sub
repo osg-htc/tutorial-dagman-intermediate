@@ -1,8 +1,9 @@
 executable = /bin/ls
 arguments  = "-la"
-output     = $(JOB).out
-error      = $(JOB).err
-log        = $(JOB).log
+
+log        = log/$(JOB).log
+output     = out/$(JOB).out
+error      = err/$(JOB).err
 
 request_cpus   = 1
 request_memory = 1GB

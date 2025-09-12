@@ -1,36 +1,41 @@
 # Dealing with a Failed DAG
 
-While it would be ideal if everything worked correctly all the
-time, in reality failure is expected to happen at some point.
-Normally, DAGMan will run until a successful completion (i.e.
-all node jobs have run and exited successfully), but what
-happens when a node's job fails?
+You may be wondering: what happens if a node fails as part of
+a DAG workflow that DAGMan is managing?
 
-In the event of a node failure, DAGMan will keep doing as much
-work as it possibly can before exiting. This means that any
-nodes that are not a descendant of a failed node it will
-continue normally. Once all possible work has been completed,
+When a node fails, DAGMan will keep doing as much
+work as it possibly can before exiting. DAGMan identifies the 
+nodes that do not depend on the failed node(s), and will continue 
+managing those nodes as normal. When there is no more work to do,
 DAGMan will write a rescue file and exit.
 
-This file will be written as:
+The DAGMan rescue file will be named as:
+
 ```
 <DAG File>.rescue###
 ```
+
 Where `###` is the rescue file number that increments
 with each new rescue. The first such file will use the number 001.
 
-When re-submitting the DAGMan job to HTCondor, unless a specific rescue
-file or `-force` option was specified, DAGMan will read the newest
-rescue file (file with the highest `###` value) and mark all `DONE` nodes as
-DONE. The DONE nodes will be skipped and DAGMan will start
-back up with submitting the remaining work (i.e. the failed nodes 
+When re-submitting the DAGMan job to HTCondor, DAGMan will read the newest
+rescue file (the one with the highest `###` value) and mark all `DONE` nodes as
+DONE. These nodes are skipped and DAGMan will start by submitting the work 
+remaining work after its previous attempt (i.e. the failed nodes 
 and descendants).
+
+You can change the automatic rescue behavior:
+
+1. **Use an older rescue file** by using the `-DoRescueFrom ###` flag, where the
+   number matches that of the rescue file you want to use.
+1. **Don't use the rescue file** by using the `-force` option.
 
 ## Bad DAG Example
 
-In this directory is another `diamond.dag` input file.
+This directory contains another Diamond DAG example, but this time
+one of the jobs submitted will fail.
 Examine the contents of the file and determine the structure of the DAG
-and the submit files corresponding to each node.
+and the submit files corresponding to each node, but don't try fixing anything just yet.
 
 Run the DAG without modification:
 
@@ -50,24 +55,24 @@ $ cat diamond.dag.rescue001
   LEFT DONE
 ```
 
-In this example the RIGHT node has failed for some reason. This
-notice of node failure can be found in both the rescue file and
-the `<DAG File>.dagman.out` log file. The RIGHT node's working
-directory `right` should provide more information on what went wrong.
-Looking at the job's standard error (`.err`) file it states:
+In this example the RIGHT node has failed for some reason.
+This is reported in both the rescue file and the `<DAG File>.dagman.out` log file.
+
+The RIGHT node's working directory `right` should provide more information on what went wrong.
+If you look at the job's standard error (`.err`) file, it states:
 
 ```
 ls: invalid option -- z
 ```
 
-Looking at the `ls.sub` file in the `right` sub-directory, the arguments
-line is passing an invalid `-lz`. 
+If you look at the `ls.sub` file in the `right` sub-directory, you'll see 
+the arguments line is passing an invalid `z` flag as part of `-lz`. 
 
 Change the argument from `-lz` to `-la` in `right/ls.sub` and then
 resubmit the DAG workflow. DAGMan should start back up but skip the
 DONE nodes `TOP` and `LEFT` and proceed directly to the `RIGHT` node, 
 followed by the `BOTTOM` node, and finish successfully.
 
-For more information, see the HTCondor documentation: 
-[Rescue from a Failed DAG](https://htcondor.readthedocs.io/en/latest/automated-workflows/dagman-resubmit-failed.html#the-rescue-dag).
+* For more information, see the HTCondor documentation: 
+  [Rescue from a Failed DAG](https://htcondor.readthedocs.io/en/latest/automated-workflows/dagman-resubmit-failed.html#the-rescue-dag).
 
