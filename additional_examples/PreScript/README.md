@@ -1,32 +1,33 @@
 # PRE Scripts
 
-A `PRE` script is an example of a DAG node `SCRIPT` , in this case one 
-that runs before the corresponding node job is submitted. 
-These scripts are lightweight tasks to be ran as a set-up step for a 
-node. The `PRE` script is considered part of the node structure which 
+You can have DAGMan execute a `SCRIPT` as part of a DAG node.
+
+A `PRE` runs before its node's job is submitted. 
+The `PRE` script is considered part of the node structure which 
 means a `PRE` script failure will lead to a node failure without 
 attempting to submit the nodes specified job.
 
 It is important to note that all DAG `SCRIPT`s run on the Access Point
 (where you log in and submit jobs) and not on the Execution Point 
 (where the node's `JOB` actually runs).
+Thus, the `PRE` script should be a lightweight task as a set-up step for a node.
 
 Some example uses of `PRE` scripts are:
 
-1. Verifying a jobs input data exists or is valid for the job
-2. Manipulate files (Rename, Move, Condense)
+1. Verifying a job's input data exists or is valid for the job
+2. Manipulate files (rename, move, condense)
 
 ## Exercise
 
-For this example, we want to verify that node `job2` has valid input. To
-do this, node `job2` is given a pre-script (`SCRIPT PRE job2 ./verify.sh`) 
+For this example, you want to verify that node `job2` has valid input before it is submitted.
+To do this, you give node `job2` a pre-script (`SCRIPT PRE job2 ./verify.sh`) 
 in the input `.dag` that checks that the contents of `data.csv` are valid. 
 
 > Note: `SCRIPT` will use the same `DIR` value as defined in the node's
 > `JOB` definition.
 
 Explore the contents of `sum.dag` and the related files in the `job1` and `job2` directories.
-Run the `sum.dag` without modification:
+Then run the `sum.dag` without modification:
 
 ```
 $ condor_submit_dag sum.dag
@@ -63,10 +64,10 @@ If you make the correct changes, then when DAGMan starts node `job2` the
 job. Once it finishes, the sum of the contents of `data.csv` will be printed
 in `job2/job2.out`.
 
-We now see that the `PRE` script can be used to check the input of a job
+You can now see that the `PRE` script can be used to check the input of a job
 and prevent the job from being submitted if something is wrong.
 Combined with the rescue DAG utility, this allows you to manually intervene
 and correct the input data, then resume the DAG from where it failed.
 
-For more information on the `PRE` and other types of `SCRIPT`s, see
+* For more information on the `PRE` and other types of `SCRIPT`s, see
 [DAGMAn Scripts Documentation](https://htcondor.readthedocs.io/en/latest/automated-workflows/dagman-scripts.html).
