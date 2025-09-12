@@ -1,18 +1,18 @@
 # Simple sleep job
 executable = echo.sh
-arguments  = $(JOB) $(Cluster) 
+arguments = $(JOB) $(Cluster) 
 
-log        = log/echo.log
-out        = out/echo.out
-err        = err/echo.err
+log = log/echo.log
+out = out/echo.out
+err = err/echo.err
 
-o_n                    = echo.$(Cluster).out
-transfer_output_files  = $(o_n)
+o_n = echo.$(Cluster).out
+transfer_output_files = $(o_n)
 transfer_output_remaps = "$(o_n) = echo/$(o_n)"
 
-request_cpus   = 1
+request_cpus = 1
 request_memory = 1GB
-request_disk   = 1GB
+request_disk = 1GB
 
 queue
 

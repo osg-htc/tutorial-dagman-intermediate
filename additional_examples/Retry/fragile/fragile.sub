@@ -1,14 +1,14 @@
 # Job that runs fragile script
 executable = fragile.sh
-arguments  = $(RETRY)
+arguments = $(RETRY)
 
-log    = log/fragile.log
+log = log/fragile.log
 output = out/fragile.out.$(Cluster)
-error  = err/fragile.err.$(Cluster)
+error = err/fragile.err.$(Cluster)
 
-request_cpus   = 1
+request_cpus = 1
 request_memory = 1GB
-request_disk   = 1GB
+request_disk = 1GB
 
 queue
 

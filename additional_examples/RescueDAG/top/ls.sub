@@ -1,13 +1,13 @@
 executable = /bin/ls
-arguments  = "-la"
+arguments = "-la"
 
-log        = log/$(JOB).log
-output     = out/$(JOB).out
-error      = err/$(JOB).err
+log = log/$(JOB).log
+output = out/$(JOB).out
+error = err/$(JOB).err
 
-request_cpus   = 1
+request_cpus = 1
 request_memory = 1GB
-request_disk   = 1GB
+request_disk = 1GB
 
 queue
 
