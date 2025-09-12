@@ -75,6 +75,6 @@ If the tasks are intensive, consider placing the code into the node's `JOB` itse
 insert a new node to handle the intensive task.
 
 * For more information on the `POST` and other DAGMan `SCRIPT`s, see 
-[DAGMAn Scripts Documentation](https://htcondor.readthedocs.io/en/latest/automated-workflows/dagman-scripts.html).
+  [DAGMAn Scripts Documentation](https://htcondor.readthedocs.io/en/latest/automated-workflows/dagman-scripts.html).
 * For information on how DAGMan decides if a node is a success or failure, see 
-[DAGMan Node Success/Failure Documentation](https://htcondor.readthedocs.io/en/latest/automated-workflows/node-pass-or-fail.html).
+  [DAGMan Node Success/Failure Documentation](https://htcondor.readthedocs.io/en/latest/automated-workflows/node-pass-or-fail.html).

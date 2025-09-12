@@ -70,4 +70,4 @@ Combined with the rescue DAG utility, this allows you to manually intervene
 and correct the input data, then resume the DAG from where it failed.
 
 * For more information on the `PRE` and other types of `SCRIPT`s, see
-[DAGMAn Scripts Documentation](https://htcondor.readthedocs.io/en/latest/automated-workflows/dagman-scripts.html).
+  [DAGMAn Scripts Documentation](https://htcondor.readthedocs.io/en/latest/automated-workflows/dagman-scripts.html).
